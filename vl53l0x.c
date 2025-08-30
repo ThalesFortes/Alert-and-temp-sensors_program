@@ -53,10 +53,7 @@ bool vl53l0x_init(i2c_inst_t *i2c) {
     uint8_t id = 0;
     if (!i2c_read8(i2c, REG_IDENTIFICATION_MODEL_ID, &id)) return false;
     // VL53L0X costuma retornar 0xEE no C0
-    if (id != 0xEE) {
-        // Prossegue mesmo assim — algumas placas podem espelhar valores
-        // diferindo por stepping, mas se quiser, retorne false aqui.
-    }
+    if (id != 0xEE) { }
 
     // Habilita pull-up alto para SCL/SDA (conforme seq. comum)
     i2c_write8(i2c, REG_VHV_CONFIG_PAD_SCL_SDA__EXTSUP_HV, 0x01);
