@@ -40,24 +40,20 @@
 
 FATFS fs;  // estrutura do FatFs
 
-//-----------------------------------------------------
-// Inicialização dos botões
-//-----------------------------------------------------
+
 void inicializar_botao_hist() {
     gpio_init(BUTTON_PIN_HIST);
-    gpio_set_dir(BUTTON_PIN_HIST, false); // entrada
-    gpio_pull_up(BUTTON_PIN_HIST);        // pull-up
+    gpio_set_dir(BUTTON_PIN_HIST, false); 
+    gpio_pull_up(BUTTON_PIN_HIST);      
 }
 
 void inicializar_botao_stop() {
     gpio_init(BUTTON_PIN_STOP);
-    gpio_set_dir(BUTTON_PIN_STOP, false); // entrada
-    gpio_pull_up(BUTTON_PIN_STOP);        // pull-up
+    gpio_set_dir(BUTTON_PIN_STOP, false); 
+    gpio_pull_up(BUTTON_PIN_STOP);        
 }
 
-//-----------------------------------------------------
-// Inicialização do SD Card
-//-----------------------------------------------------
+
 void inicializar_sd() {
     spi_init(SPI_PORT, 1000 * 1000);
     gpio_set_function(PIN_MISO, GPIO_FUNC_SPI);
@@ -75,9 +71,7 @@ void inicializar_sd() {
     }
 }
 
-//-----------------------------------------------------
-// Registro de dados no SD (Distância + Estado + Temp/Umid)
-//-----------------------------------------------------
+
 void registrar_dados(uint16_t distancia_mm, const char* estado, uint64_t tempo_ms, AHT10_t *medida) {
     FIL arquivo;
     char linha[150], valor_str[16], unidade[4];
@@ -110,9 +104,7 @@ void registrar_dados(uint16_t distancia_mm, const char* estado, uint64_t tempo_m
     }
 }
 
-//-----------------------------------------------------
-// Mostrar arquivo do SD com scroll e botão de parada
-//-----------------------------------------------------
+
 void mostrar_arquivo_sd() {
     FIL arquivo;
     FRESULT fr = f_open(&arquivo, "dados.txt", FA_READ);
@@ -126,14 +118,14 @@ void mostrar_arquivo_sd() {
     }
 
     char linha[128];
-    char buffer[6][128]; // 6 linhas para scroll
+    char buffer[6][128]; 
     int count = 0;
 
     ssd1306_Fill(Black);
     ssd1306_UpdateScreen();
 
     while (f_gets(linha, sizeof(linha), &arquivo)) {
-        if (!gpio_get(BUTTON_PIN_STOP)) break; // se botão stop for pressionado
+        if (!gpio_get(BUTTON_PIN_STOP)) break; 
 
         printf("%s", linha);
 
@@ -165,9 +157,7 @@ static void draw_oled_header(void) {
     ssd1306_WriteString("Monitor Ambiente", Font_7x10, White);
 }
 
-//-----------------------------------------------------
-// MAIN
-//-----------------------------------------------------
+
 int main() {
     stdio_init_all();
 
@@ -226,7 +216,6 @@ int main() {
     bool botao_ativo = false;
 
     while (1) {
-        // Botão histórico
         if (!gpio_get(BUTTON_PIN_HIST)) {
             if (!botao_ativo) {
                 botao_ativo = true;
@@ -236,7 +225,6 @@ int main() {
             botao_ativo = false;
         }
 
-        // Leitura VL53L0X
         bool ok = vl53l0x_read_range_mm(I2C_PORT, &mm, 200);
         if (!ok) {
             draw_oled_header();
@@ -249,8 +237,7 @@ int main() {
             sleep_ms(150);
             continue;
         }
-        if (mm < 50) mm = 3000; // fora de alcance
-
+        if (mm < 50) mm = 3000; 
         // Filtro de média
         buffer[idx++] = mm;
         if (idx >= FILTER_SIZE) { idx = 0; filled = true; }
